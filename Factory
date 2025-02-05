@@ -1,0 +1,1198 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "🦃Factory Simulator",
+    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
+    LoadingTitle = "Factory Simulator",
+    LoadingSubtitle = "by Parcanerg23",
+    Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+ 
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+ 
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = nil, -- Create a custom folder for your hub/game
+       FileName = "Main"
+    },
+ 
+    Discord = {
+       Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
+       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+    },
+ 
+    KeySystem = false, -- Set this to true to use our key system
+    KeySettings = {
+       Title = "Untitled",
+       Subtitle = "Key System",
+       Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+       FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+       Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+    }
+ })
+
+ local MainTab = Window:CreateTab("Home", nil) -- Title, Image
+ local Section = MainTab:CreateSection("TP")
+
+ Rayfield:Notify({
+    Title = "Bienvenido",
+    Content = "UwU con voz de Macho Pecho peludo SIUU",
+    Duration = 6.5,
+    Image = nil,
+ })
+
+ local Label = MainTab:CreateLabel("Primero ocupas ir a la zona de los Turkey", nil, Color3.fromRGB(255, 255, 255), false)
+ local Button = MainTab:CreateButton({
+    Name = "Teleport los turkeys al carro",
+    Callback = function()
+          -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+local car = nil
+
+-- Buscar el carro del jugador en su propio Plot
+for _, plot in ipairs(workspace.Plots:GetChildren()) do
+    -- Verificar si el Plot pertenece al jugador
+    if plot:FindFirstChild("Owner") and plot.Owner.Value == player then
+        local vehicleFolder = plot:FindFirstChild("Vehicle")
+        if vehicleFolder and vehicleFolder:FindFirstChild("SpawnedVehicle") then
+            -- Buscar cualquier vehículo de los nombres especificados
+            car = vehicleFolder.SpawnedVehicle:FindFirstChild("SuperTruck") or
+                  vehicleFolder.SpawnedVehicle:FindFirstChild("LargeTruck") or
+                  vehicleFolder.SpawnedVehicle:FindFirstChild("SmallTruck")
+            if car then
+                break -- Si se encuentra el carro, salir del bucle
+            end
+        end
+    end
+end
+
+-- Verificar que el carro del jugador exista
+if car then
+    -- Encontrar la parte principal del carro
+    local carPrimaryPart = car:FindFirstChild("PrimaryPart") or car:FindFirstChildWhichIsA("BasePart")
+
+    if carPrimaryPart then
+        -- Contador de objetos movidos
+        local movedObjects = 0
+
+        -- Buscar objetos "Turkey" en workspace.Harvestable.Turkeys
+        local turkeyFolder = workspace:FindFirstChild("Harvestable") and workspace.Harvestable:FindFirstChild("Turkeys")
+        if turkeyFolder then
+            for _, obj in ipairs(turkeyFolder:GetChildren()) do
+                if obj.Name == "Turkey" then
+                    -- Buscar la parte principal del Turkey
+                    local targetPart = obj:FindFirstChild("PrimaryPart") or obj:FindFirstChildWhichIsA("BasePart")
+                    if targetPart then
+                        -- Teletransportar el objeto al carro del jugador
+                        targetPart.CFrame = carPrimaryPart.CFrame + Vector3.new(0, 3, 0) -- Evitar colisiones
+                        movedObjects = movedObjects + 1
+                    else
+                        warn("El Turkey '" .. obj.Name .. "' no tiene una BasePart válida.")
+                    end
+                end
+            end
+        else
+            warn("No se encontró la carpeta Harvestable.Turkeys en workspace.")
+        end
+
+        print("Se han teletransportado " .. movedObjects .. " Turkeys al carro del jugador.")
+    else
+        warn("No se encontró una parte válida en el carro.")
+    end
+else
+    warn("No se encontró un carro del jugador.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Bring Ores",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar que el jugador tenga un personaje en el juego
+if player and player.Character then
+    -- Encontrar la parte principal del jugador (HumanoidRootPart)
+    local playerRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+
+    if playerRootPart then
+        -- Contador de objetos movidos
+        local movedObjects = 0
+
+        -- Buscar todos los Plot en workspace.Plots
+        for _, plot in ipairs(workspace.Plots:GetChildren()) do
+            -- Buscar el folder Entities dentro de cada Plot
+            local entitiesFolder = plot:FindFirstChild("Entities")
+            if entitiesFolder then
+                -- Buscar los DroppedItems dentro de Entities
+                local droppedItems = entitiesFolder:GetChildren()
+                for _, droppedItem in ipairs(droppedItems) do
+                    -- Verificar si el objeto es un DroppedItem y si es una BasePart válida
+                    if droppedItem.Name == "DroppedItem" and droppedItem:IsA("BasePart") then
+                        -- Teletransportar el DroppedItem al jugador
+                        droppedItem.CFrame = playerRootPart.CFrame + Vector3.new(0, 3, 0) -- Evita colisiones
+                        movedObjects = movedObjects + 1
+                    else
+                        -- Si DroppedItem no es una parte válida
+                        print("El objeto '" .. droppedItem.Name .. "' no es una BasePart válida y fue ignorado.")
+                    end
+                end
+            else
+                -- Si no se encuentra la carpeta Entities
+                warn("No se encontró la carpeta 'Entities' en el Plot '" .. plot.Name .. "'.")
+            end
+        end
+
+        -- Imprimir cuántos objetos fueron teletransportados
+        print("Se han teletransportado " .. movedObjects .. " DroppedItems al jugador.")
+    else
+        warn("No se encontró la HumanoidRootPart del jugador.")
+    end
+else
+    warn("El jugador no tiene un personaje en el juego.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Teleport Plot",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar que el jugador tenga un personaje en el juego
+if player and player.Character then
+    -- Encontrar la parte principal del jugador (HumanoidRootPart)
+    local playerRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+
+    if playerRootPart then
+        -- Buscar todos los Plot en workspace.Plots
+        for _, plot in ipairs(workspace.Plots:GetChildren()) do
+            -- Verificar si la Plot pertenece al jugador
+            if plot:FindFirstChild("Owner") and plot.Owner.Value == player then
+                -- Teletransportar al jugador a la Plot del que ejecuta el script
+                local newCFrame = plot.PrimaryPart.CFrame
+                -- Desplazar al jugador un poco hacia arriba para evitar estar debajo del suelo
+                newCFrame = CFrame.new(newCFrame.Position + Vector3.new(0, 5, 0)) -- Ajusta el 5 si es necesario
+                playerRootPart.CFrame = newCFrame
+                print("El jugador ha sido teletransportado a su Plot.")
+                return -- Salir después de teletransportar al jugador
+            end
+        end
+
+        -- Si no se encontró la Plot del jugador
+        warn("No se encontró la Plot que pertenece al jugador.")
+    else
+        warn("No se encontró la HumanoidRootPart del jugador.")
+    end
+else
+    warn("El jugador no tiene un personaje en el juego.")
+end
+    end,
+ })
+
+ local Paragraph = MainTab:CreateParagraph({Title = "OJO", Content = "Los teletransportadores no pueden funcionar aveces en algunos minerales por errores de los mismos minerales del juego si pasa eso vuelve a unirte"})
+ local Label = MainTab:CreateLabel("Tier1", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+ local Button = MainTab:CreateButton({
+    Name = "Cobre",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "CopperOre" en workspace.Harvestable.World
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.World:GetChildren()) do
+        if obj.Name == "CopperOre" then
+            targetObject = obj
+            break -- Tomamos el primer CopperOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "CopperOre" (o su parte principal)
+                characterPrimaryPart.CFrame = targetPart.CFrame
+                print("Jugador teletransportado al CopperOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto CopperOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un CopperOre en workspace.Harvestable.World.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Roca",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "Rock" en workspace.Harvestable.World
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.World:GetChildren()) do
+        if obj.Name == "Rock" then
+            targetObject = obj
+            break -- Tomamos el primer Rock que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "Rock" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al Rock.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto Rock no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un Rock en workspace.Harvestable.World.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Arbol",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "Tree" en workspace.Harvestable.World
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.World:GetChildren()) do
+        if obj.Name == "Tree" then
+            targetObject = obj
+            break -- Tomamos el primer Tree que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "Tree"
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al Tree.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto Tree no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un Tree en workspace.Harvestable.World.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Label = MainTab:CreateLabel("Tier2", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+ local Button = MainTab:CreateButton({
+    Name = "Oro",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT2
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT2:GetChildren()) do
+        if obj.Name == "GoldOre" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Arbol de cortesa dura",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT2
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT2:GetChildren()) do
+        if obj.Name == "HardwoodTree" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Hierro",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT2
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT2:GetChildren()) do
+        if obj.Name == "Sand" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Label = MainTab:CreateLabel("Tier3", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+ local Button = MainTab:CreateButton({
+    Name = "Diamante",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT3
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT3:GetChildren()) do
+        if obj.Name == "Diamond" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Resinta",
+    Callback = function()
+        -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT3
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT3:GetChildren()) do
+        if obj.Name == "ResiniteOre" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Arbol de super madera",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT3
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT3:GetChildren()) do
+        if obj.Name == "SuperwoodTree" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Titanio",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "GoldenOre" en workspace.Harvestable.WorldT3
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT3:GetChildren()) do
+        if obj.Name == "TitaniumOre" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "Uranio",
+    Callback = function()
+            -- Obtener al jugador local
+local player = game.Players.LocalPlayer
+
+-- Verificar si el jugador tiene un personaje
+if player and player.Character then
+    -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+    local targetObject = nil
+    for _, obj in ipairs(workspace.Harvestable.WorldT3:GetChildren()) do
+        if obj.Name == "UraniumOre" then
+            targetObject = obj
+            break -- Tomamos el primer GoldenOre que encontremos
+        end
+    end
+
+    -- Verificar si el objeto objetivo existe
+    if targetObject then
+        -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+        local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+        
+        if targetPart then
+            -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+            local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+            
+            if characterPrimaryPart then
+                -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                print("Jugador teletransportado al GoldenOre.")
+            else
+                warn("No se encontró la parte principal del jugador.")
+            end
+        else
+            warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+        end
+    else
+        warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+    end
+else
+    warn("El jugador no tiene un personaje.")
+end
+    end,
+ })
+ local Label = MainTab:CreateLabel("Tier4", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+ local Button = MainTab:CreateButton({
+    Name = "BluemetalOre",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT4:GetChildren()) do
+                    if obj.Name == "BluemetalOre" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "IceCrystal",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT4:GetChildren()) do
+                    if obj.Name == "IceCrystal" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "LavaCrystal",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT4:GetChildren()) do
+                    if obj.Name == "LavaCrystal" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "RedmetalOre",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT4:GetChildren()) do
+                    if obj.Name == "RedmetalOre" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "TungstenOre",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT4:GetChildren()) do
+                    if obj.Name == "TungstenOre" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "UltrawoodTree",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT4:GetChildren()) do
+                    if obj.Name == "UltrawoodTree" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+ local Label = MainTab:CreateLabel("Tier5", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+
+ local Button = MainTab:CreateButton({
+    Name = "EnergyCrystal",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT5:GetChildren()) do
+                    if obj.Name == "EnergyCrystal" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "OsmiumOre",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT5:GetChildren()) do
+                    if obj.Name == "OsmiumOre" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "PetrifiedTree",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT5:GetChildren()) do
+                    if obj.Name == "PetrifiedTree" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "ShroomiteOre",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT5:GetChildren()) do
+                    if obj.Name == "ShroomiteOre" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Button = MainTab:CreateButton({
+    Name = "WeirdOre",
+    Callback = function()
+            -- Obtener al jugador local
+            local player = game.Players.LocalPlayer
+
+            -- Verificar si el jugador tiene un personaje
+            if player and player.Character then
+                -- Buscar el objeto llamado "UraniumOre" en workspace.Harvestable.WorldT3
+                local targetObject = nil
+                for _, obj in ipairs(workspace.Harvestable.WorldT5:GetChildren()) do
+                    if obj.Name == "WeirdOre" then
+                        targetObject = obj
+                        break -- Tomamos el primer GoldenOre que encontremos
+                    end
+                end
+            
+                -- Verificar si el objeto objetivo existe
+                if targetObject then
+                    -- Intentar encontrar una parte dentro del objeto que sea un BasePart (si el objeto es un modelo)
+                    local targetPart = targetObject:FindFirstChildWhichIsA("BasePart")
+                    
+                    if targetPart then
+                        -- Verificar que el personaje del jugador tenga una parte principal (como el "HumanoidRootPart")
+                        local characterPrimaryPart = player.Character:FindFirstChild("HumanoidRootPart")
+                        
+                        if characterPrimaryPart then
+                            -- Teletransportar al jugador al objeto "GoldenOre" con un pequeño desplazamiento para evitar colisiones
+                            characterPrimaryPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
+                            print("Jugador teletransportado al GoldenOre.")
+                        else
+                            warn("No se encontró la parte principal del jugador.")
+                        end
+                    else
+                        warn("El objeto GoldenOre no tiene una parte válida para el teletransporte.")
+                    end
+                else
+                    warn("No se encontró un GoldenOre en workspace.Harvestable.WorldT2.")
+                end
+            else
+                warn("El jugador no tiene un personaje.")
+            end
+    end,
+ })
+
+ local Label = MainTab:CreateLabel("Proximamente", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
+ local Paragraph = MainTab:CreateParagraph({Title = "Proximamente para la version 1.0", Content = "Proximamente ya que realmente es cansado y tambien quiero descubrir nuevas funciones para q no sea con puro boton el teletransporte"})
