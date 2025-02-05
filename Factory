@@ -1196,3 +1196,179 @@ end
 
  local Label = MainTab:CreateLabel("Proximamente", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
  local Paragraph = MainTab:CreateParagraph({Title = "Proximamente para la version 1.0", Content = "Proximamente ya que realmente es cansado y tambien quiero descubrir nuevas funciones para q no sea con puro boton el teletransporte"})
+
+ local MainTab = Window:CreateTab("CARROS", 4483362458) -- Title, Image
+ local destinos = {
+    World = {"CopperOre", "Rock", "Tree"},
+    WorldT2 = {"GoldOre", "HardwoodTree", "IronOre", "Sand"},
+    WorldT3 = {"Diamond", "ResiniteOre", "SuperwoodTree", "TitaniumOre", "UraniumOre"},
+    WorldT4 = {"BluemetalOre", "IceCrystal", "LavaCrystal", "RedmetalOre", "TungstenOre", "UltrawoodTree"},
+    WorldT5 = {"EnergyCrystal", "OsmiumOre", "PetrifiedTree", "ShroomiteOre", "WeirdOre"},
+    WorldT6 = {"AmberniteOre", "DiabliumOre", "LeadOre", "SaltCrystal", "SanctiumOre", "SilverOre", "TropicalTree"},
+    WorldT7 = {"CobaltOre", "Coral", "NickelOre", "SamariumOre", "ZincOre"}
+}
+
+-- Variable para almacenar el destino seleccionado
+local destinoSeleccionado = { carpeta = "World", objeto = "CopperOre" }
+
+-- Función para crear dropdowns en el orden correcto
+local function crearDropdown(nombre, carpeta)
+    MainTab:CreateDropdown({
+        Name = "Selecciona un destino en " .. nombre,
+        Options = destinos[carpeta],
+        CurrentOption = destinos[carpeta][1],
+        Flag = "Destino" .. carpeta .. "Dropdown",
+        Callback = function(opcion)
+            if type(opcion) == "table" then
+                opcion = opcion[1]
+            end
+
+            if table.find(destinos[carpeta], opcion) then
+                destinoSeleccionado = { carpeta = carpeta, objeto = opcion }
+                print("✅ Destino seleccionado:", destinoSeleccionado.objeto, "en", destinoSeleccionado.carpeta)
+            else
+                print("❌ Error: Destino no encontrado en", carpeta, "- Seleccionaste:", tostring(opcion))
+            end
+        end
+    })
+end
+
+-- Crear dropdowns en el orden correcto
+crearDropdown("World", "World")
+crearDropdown("WorldT2", "WorldT2")
+crearDropdown("WorldT3", "WorldT3")
+crearDropdown("WorldT4", "WorldT4")
+crearDropdown("WorldT5", "WorldT5")
+crearDropdown("WorldT6", "WorldT6")
+crearDropdown("WorldT7", "WorldT7")
+
+-- Botón único para teletransportar el carro
+local BotonTP = MainTab:CreateButton({
+    Name = "Ir al destino con el carro",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local harvestableFolder = workspace:FindFirstChild("Harvestable")
+        local worldFolder = harvestableFolder and harvestableFolder:FindFirstChild(destinoSeleccionado.carpeta)
+
+        if not worldFolder then
+            warn("❌ No se encontró la carpeta '" .. destinoSeleccionado.carpeta .. "' en Workspace.")
+            return
+        end
+
+        -- Buscar la ubicación del destino
+        local destino = worldFolder:FindFirstChild(destinoSeleccionado.objeto)
+        if destino then
+            local destinoPart = destino:FindFirstChildWhichIsA("BasePart")
+
+            if destinoPart then
+                -- Buscar la plot del jugador
+                local playerPlot = nil
+                for _, plot in ipairs(workspace.Plots:GetChildren()) do
+                    local owner = plot:FindFirstChild("Owner")
+                    if owner and owner.Value == player then
+                        playerPlot = plot
+                        break
+                    end
+                end
+
+                -- Verificar si se encontró la plot del jugador
+                if playerPlot then
+                    -- Buscar el carro en la plot del jugador
+                    local car = nil
+                    local vehicleFolder = playerPlot:FindFirstChild("Vehicle")
+                    if vehicleFolder and vehicleFolder:FindFirstChild("SpawnedVehicle") then
+                        car = vehicleFolder.SpawnedVehicle:FindFirstChildWhichIsA("Model")
+                    end
+
+                    -- Verificar si el carro existe
+                    if car then
+                        -- Buscar la parte principal del carro
+                        local carPrimaryPart = car:FindFirstChildWhichIsA("BasePart")
+
+                        if carPrimaryPart then
+                            -- Teletransportar el carro al destino seleccionado
+                            local newCFrame = destinoPart.CFrame
+                            newCFrame = CFrame.new(newCFrame.Position + Vector3.new(0, 5, 0))
+                            car:SetPrimaryPartCFrame(newCFrame)
+
+                            print("✅ Tu carro ha sido teletransportado a:", destinoSeleccionado.objeto, "en", destinoSeleccionado.carpeta)
+                        else
+                            warn("❌ No se encontró una parte válida en el carro.")
+                        end
+                    else
+                        warn("❌ No se encontró un carro en la Plot del jugador.")
+                    end
+                else
+                    warn("❌ No se encontró la Plot que pertenece al jugador.")
+                end
+            else
+                warn("❌ No se encontró una parte válida en el destino seleccionado.")
+            end
+        else
+            warn("❌ No se encontró el destino '" .. destinoSeleccionado.objeto .. "' en '" .. destinoSeleccionado.carpeta .. "'.")
+        end
+    end
+})
+
+local Button = MainTab:CreateButton({
+    Name = "TP PLOT",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+
+        -- Buscar la plot del jugador en workspace.Plots
+        local function encontrarPlotJugador()
+            for _, plot in ipairs(workspace.Plots:GetChildren()) do
+                local owner = plot:FindFirstChild("Owner")
+                if owner and owner.Value == player then
+                    return plot
+                end
+            end
+            return nil
+        end
+        
+        -- Buscar el carro dentro de la plot
+        local function encontrarCarro(plot)
+            if not plot then return nil end
+            local vehicleFolder = plot:FindFirstChild("Vehicle")
+            if vehicleFolder and vehicleFolder:FindFirstChild("SpawnedVehicle") then
+                return vehicleFolder.SpawnedVehicle:FindFirstChildWhichIsA("Model")
+            end
+            return nil
+        end
+        
+        -- Teletransportar el carro
+        local function teletransportarCarro()
+            local playerPlot = encontrarPlotJugador()
+        
+            if playerPlot then
+                local car = encontrarCarro(playerPlot)
+        
+                if car then
+                    local carPrimaryPart = car:FindFirstChildWhichIsA("BasePart")
+                    local plotPrimaryPart = playerPlot:FindFirstChildWhichIsA("BasePart")
+        
+                    if carPrimaryPart and plotPrimaryPart then
+                        local newCFrame = plotPrimaryPart.CFrame
+                        -- Ajustar posición para evitar colisiones
+                        newCFrame = CFrame.new(newCFrame.Position + Vector3.new(0, 5, 0))
+                        car:SetPrimaryPartCFrame(newCFrame)
+        
+                        print("✅ El carro ha sido teletransportado a la Plot del jugador.")
+                    else
+                        warn("❌ No se encontró una parte válida en el carro o en la Plot.")
+                    end
+                else
+                    warn("❌ No se encontró un carro en la Plot del jugador.")
+                end
+            else
+                warn("❌ No se encontró la Plot que pertenece al jugador.")
+            end
+        end
+        
+        -- Ejecutar la función
+        teletransportarCarro()
+    end,
+ })
+
+ local MainTab = Window:CreateTab("Version", 4483362458) -- Title, Image
+ local Paragraph = MainTab:CreateParagraph({Title = "version 0.9", Content = "Se agregaron los teletrransportes de carros y una forma mas facil del teletransporte que poximamente sera agregada a los tp"})
